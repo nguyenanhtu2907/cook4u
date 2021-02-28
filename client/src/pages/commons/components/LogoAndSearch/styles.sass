@@ -1,0 +1,65 @@
+.logo-header
+    height: 60px
+
+.logo-content
+    height: 150px
+
+.flex-row
+    display: flex
+    flex-direction: row    
+.flex-column
+    display: flex
+    flex-direction: column
+    text-align: center
+
+.search-form    
+    width: 100%
+    &--icon
+        display: inline-block
+        position: absolute
+        z-index: 1
+        margin-top: 7px
+        color: #7d7d7d
+        margin-left: 7px
+
+    &--input
+        padding: 12px 10px 12px 35px
+        position: relative
+        width: 270px
+        border-radius: 10px 0px 0px 10px
+        border: solid #dbdada 1px
+        
+        &::placeholder
+            color: #7d7d7d
+            font-size: 15px
+            font-style: italic
+        &:focus
+            outline: none
+
+    &--button
+        height: 41.5px
+        color: #ffffff
+        background-color: #ff8822
+        font-weight: 500
+        border: solid #dbdada 1px
+        border-radius: 0px 10px 10px 0px
+        cursor: pointer
+        position: relative
+        left: -1px
+        &:focus
+            outline: none
+.mr-auto
+    margin-right: auto
+.mobile-input
+    padding: 12px 10px 12px 35px
+    position: relative
+    width: 200px
+    border-radius: 10px
+    border: solid #dbdada 1px
+    
+    &::placeholder
+        color: #7d7d7d
+        font-size: 15px
+        font-style: italic
+    &:focus
+        outline: none
