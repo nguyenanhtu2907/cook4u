@@ -1,6 +1,6 @@
 import express from 'express';
 import auth from '../middleware/auth.js';
-import { getPosts, getLikedPosts, getMorePosts, createPost, deletePost, modifyPost, likePost, getPost, commentPost, deleteCommentPost, } from '../controllers/PostController.js';
+import { getPosts,searchPosts, getLikedPosts, getMorePosts, createPost, deletePost, modifyPost, likePost, getPost, commentPost, deleteCommentPost, } from '../controllers/PostController.js';
 
 
 const router = express.Router();
@@ -17,12 +17,13 @@ router.patch('/:slug/comment', auth, commentPost)
 
 router.patch('/:slug/delete-comment', auth, deleteCommentPost)
 
+router.get('/search', searchPosts)
+
 router.get('/:slug/more', getMorePosts)
 
 router.get('/liked', getLikedPosts)
 
 router.get('/:slug', getPost)
-
 
 router.get('/', getPosts)
 

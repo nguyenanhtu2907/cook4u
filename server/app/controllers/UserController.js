@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Post from '../models/Post.js';
+import Report from '../models/Report.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { multipleMongooseToObj, mongooseToObj } from '../util/mongooseToObj.js'
@@ -129,7 +130,6 @@ export const getUserInfo = async (req, res) => {
     const { uuid } = req.params
     try {
         const user = await User.findOne({ uuid: uuid })
-        //author => "author.uuid" here
         const number = await Post.countDocuments({ "author.uuid": uuid })
         user.posts = number;
 
@@ -150,9 +150,9 @@ export const getUserInfo = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
-    const {uuid} = req.params;
-    const user = await User.findOne({uuid: uuid})
-    if(!user) res.status(404);
+    const { uuid } = req.params;
+    const user = await User.findOne({ uuid: uuid })
+    if (!user) res.status(404);
     try {
         const { setting } = req.query;
         if (setting === 'information') {
@@ -170,9 +170,9 @@ export const updateUser = async (req, res) => {
                 }
             })
         } else if (setting === 'password') {
-            const {old_password, password} = req.body;
+            const { old_password, password } = req.body;
             const isCorrectPassword = bcrypt.compareSync(old_password, user.password_hash);
-            if(isCorrectPassword){
+            if (isCorrectPassword) {
                 user.password_hash = bcrypt.hashSync(password, 12);
                 await user.save();
                 res.json({
@@ -181,7 +181,7 @@ export const updateUser = async (req, res) => {
                         message: "Đổi mật khẩu thành công",
                     }
                 })
-            }else{
+            } else {
                 res.json({
                     message: {
                         success: false,
@@ -189,9 +189,9 @@ export const updateUser = async (req, res) => {
                     }
                 })
             }
-        
-        
-        }else{
+
+
+        } else {
             res.status(404)
         }
     } catch (error) {
@@ -199,4 +199,94 @@ export const updateUser = async (req, res) => {
         res.status(404);
     }
 }
+export const getFollowUsers = async (req, res) => {
+    try {
+        const { uuid } = req.params;
+        const { type, skip } = req.query;
+        const user = await User.findOne({ uuid: uuid });
 
+        const users = []
+        if (type === 'followed') {
+            const total = user.followed.length;
+            for (let i = skip * 1; i < (skip * 1 + 20 >= total ? total : (skip * 1 + 20)); i++) {
+                const info = await getInfoUserByUuid(user.followed[i]);
+                users.push(info);
+            }
+            res.json(users);
+        } else {
+            const total = user.following.length;
+            for (let i = skip * 1; i < (skip * 1 + 20 >= total ? total : (skip * 1 + 20)); i++) {
+                const info = await getInfoUserByUuid(user.following[i]);
+                users.push(info);
+            }
+            res.json(users);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(404)
+    }
+
+}
+
+export const report = async (req, res) => {
+    try {
+        const newReport = req.body;
+        const existReport = await Report.findOne({ target: newReport.target })
+        if (!existReport || existReport.type !== newReport.type) {
+            const report = new Report(newReport);
+            await report.save();
+        }
+        res.json({
+            message: "Báo cáo thành công. Nếu đối tượng có vấn đề, Admin sẽ thực thi công lý!!!"
+        })
+    } catch (error) {
+        console.log(error);
+        res.json(404);
+    }
+}
+
+export const getReports = async (req, res) => {
+
+    try {
+        const reports = await Report.find()
+        const response = [];
+        for (let i = 0; i < reports.length; i++) {
+            const user = await User.findOne({ uuid: reports[i].userReport });
+            response.push({
+                uuid: reports[i].uuid,
+                type: reports[i].type,
+                target: reports[i].target,
+                userReport: {
+                    uuid: user.uuid,
+                    name: user.name,
+                    imageUrl: user.imageUrl,
+                },
+                createdAt: reports[i].createdAt,
+            })
+        }
+        res.json(response);
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+    }
+}
+
+export const removeReport = async (req, res) => {
+    try {
+        const { uuid } = req.params;
+        await Report.deleteOne({ uuid: uuid })
+        res.json({ uuid: uuid })
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+    }
+}
+
+const getInfoUserByUuid = async (uuid) => {
+    const user = await User.findOne({ uuid: uuid })
+    return {
+        uuid: user.uuid,
+        name: user.name,
+        imageUrl: user.imageUrl,
+    }
+}

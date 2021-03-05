@@ -29,9 +29,7 @@ function Post(props) {
 
     const liked = post?.likes.findIndex(userId => userId === currentUser?.uuid);
     const following = currentUser?.following.findIndex(userId => userId === post?.author.uuid);
-
     const [isOptionOpen, setIsOptionOpen] = useState(false);
-
     const [openDialog, setOpenDialog] = useState(false)
     const history = useHistory()
     const dispatch = useDispatch();
@@ -128,10 +126,10 @@ function Post(props) {
         history.push(`/user/${post.author.uuid}`);
     };
 
-    const handleReportPost = (e) => {
+    const handleReportPost =async  (e) => {
         e.preventDefault()
-        handleReport('post', post.slug, currentUser.uuid)
-
+        const response = await handleReport('post', post.slug, currentUser.uuid)
+        alert(response.message)
     };
 
     if (!post) return (<LoadIcon />)
@@ -151,7 +149,7 @@ function Post(props) {
                         {isOptionOpen && <div className="post-page--paper__option-list">
                             <ul>
 
-                                {currentUser?.uuid === post.author.uuid && (<>
+                                {(currentUser?.uuid === post.author.uuid || currentUser.level==='admin') && (<>
                                     <li>
                                         <Link to={`/post/${post.slug}/edit`} >Chỉnh sửa</Link>
                                     </li>

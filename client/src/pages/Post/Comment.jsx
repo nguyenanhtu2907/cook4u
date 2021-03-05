@@ -5,7 +5,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { IconButton } from '@material-ui/core'
 
 import * as api from '../../api/index';
-import {handleReport} from '../commons/custom/handleReport';
+import { handleReport } from '../commons/custom/handleReport';
 
 function Comment({ comment, slug, setPost, author }) {
     const [isOptionOpen, setIsOptionOpen] = useState(false);
@@ -21,7 +21,7 @@ function Comment({ comment, slug, setPost, author }) {
         return () => window.removeEventListener('click', hideDropdown);
     })
     const handleDeleteComment = async (createdAt) => {
-        const {data} = await api.deleteCommentPostsApi(slug, currentUser?.uuid, {createdAt: createdAt});
+        const { data } = await api.deleteCommentPostsApi(slug, currentUser?.uuid, { createdAt: createdAt });
         data.createdAt = new Date(data.createdAt);
         setPost(data);
     }
@@ -48,14 +48,17 @@ function Comment({ comment, slug, setPost, author }) {
                         <IconButton size="small" variant='outline' ><MoreHorizIcon fontSize='small' /></IconButton>
                     </div>
                     {isOptionOpen && (<>
-                        <div  className="post-page--paper--comment__comments__option">
-                            {currentUser.uuid === author &&
-                            <div onClick={()=>handleDeleteComment(comment.createdAt)} className="bd-bottom">
-                                Xóa bình luận
+                        <div className="post-page--paper--comment__comments__option">
+                            {(currentUser.uuid === author || currentUser.level === 'admin') &&
+                                <div onClick={() => handleDeleteComment(comment.createdAt)} className="bd-bottom">
+                                    Xóa bình luận
                             </div>}
-                            
-                            
-                            <div onClick={()=>handleReport('comment', slug, currentUser.uuid)}>
+
+
+                            <div onClick={async () => {
+                                const response = await handleReport('comment', slug, currentUser.uuid)
+                                alert(response.message)
+                            }}>
                                 Báo cáo
                             </div>
                         </div>

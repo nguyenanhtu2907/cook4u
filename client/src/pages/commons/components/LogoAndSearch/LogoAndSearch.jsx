@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import SearchIcon from '@material-ui/icons/Search';
 
 import './styles.sass';
 import { useWindowHeightAndWidth } from '../../custom/useWindowHeightAndWidth';
 import {usePosXAndPosY} from '../../custom/usePosXAndPosY';
+import * as api from '../../../../api/index';
+import QueryString from 'query-string';
 function LogoAndSearch({ logoComponent, position }) {
     const [searchText, setSearchText] = useState('');
     const [height, width] = useWindowHeightAndWidth();
     const [posX, posY] = usePosXAndPosY();
     const location = useLocation();
+    const history = useHistory();
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(searchText)
-
+        const q=QueryString.stringify({
+            q: searchText.trim(),
+        })
+        history.push(`/post/search?${q}`)
         setSearchText('');
     }
 

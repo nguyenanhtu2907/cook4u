@@ -30,7 +30,7 @@ export const getLikedPosts = async (req, res) => {
             }
             res.json(posts);
         } else {
-            res.json({message: "Không có bài viết nào."});
+            res.json({ message: "Không có bài viết nào." });
         }
     } catch (error) {
         console.log(error);
@@ -41,12 +41,12 @@ export const getMorePosts = async (req, res) => {
     const { user } = req.query;
     const { slug } = req.params;
     try {
-        const posts = await Post.find({ author: user }).limit(5).sort({ 'createdAt': -1 })
-
+        const posts = await Post.find({ "author.uuid": user }).limit(5).sort({ 'createdAt': -1 })
         const response = [...posts.filter(post => post.slug !== slug)]
         res.json(response);
     } catch (error) {
         console.log(error);
+        res.status(404)
     }
 }
 
@@ -171,6 +171,24 @@ export const deleteCommentPost = async (req, res) => {
             .catch((e) => { console.log(e) })
     } catch (error) {
         console.log(error);
+    }
+}
+
+export const searchPosts = async (req, res) => {
+    const { q, skip } = req.query;
+
+    try {
+        const query = {
+            $text: {
+                $search: q,
+            }
+        }
+        Post.find(query).limit(10).skip(skip*1)
+            .then(posts => getPostsInfo(posts))
+            .then(posts => res.json(posts))
+    } catch (error) {
+        console.log(eror);
+        res.status(404)
     }
 }
 
