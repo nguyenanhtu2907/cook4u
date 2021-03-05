@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const Post = new Schema({
     title: String,
-    author: String,
+    author: Object,
     thumbnail: {type: String, default: ''},
     ration: Number,
     time: Number,
@@ -16,8 +16,11 @@ const Post = new Schema({
     likes: {type: Array, default: []},
     comments: {type: Array, default: []},
     slug: {type: String, slug: 'title', unique: true},
+    key: String,
+    isReported: {type: Boolean, default: false},
 }, {
     timestamps: true,
 })
+Post.index({ key: 'text' });
 
 export default mongoose.model('Post', Post);

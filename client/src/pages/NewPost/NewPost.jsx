@@ -6,16 +6,18 @@ import AddIcon from '@material-ui/icons/Add';
 import { IconButton, Button } from '@material-ui/core';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import {useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+import * as api from '../../api/index';
 
 import './styles.sass';
-import { createPostApi } from '../../api/index'
+import { createPostApi, modifyPostApi } from '../../api/index'
 import camera from './image/camera.png';
 import { convertImageToBase64 } from '../commons/custom/convertImageToBase64';
 import { useWindowHeightAndWidth } from '../commons/custom/useWindowHeightAndWidth';
+import LoadIcon from '../commons/components/LoadIcon/LoadIcon';
 
 
-const initPost = {
+let initPost = {
     thumbnail: '',
     title: '',
     description: '',
@@ -31,132 +33,12 @@ const initPost = {
         images: [],
     }],
 }
-const gotPost = {
-    title: 'Chè Bột Lọc Hoa Đậu Biếc',
-    author: {
-        name: 'Nguyen Anh Tu',
-        imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-        uuid: '12345677'
-    },
-    thumbnail: 'https://img-global.cpcdn.com/recipes/789b4d37cadb3160/640x640sq70/photo.webp',
-    ration: 3,
-    time: 60,
-    description: 'Bài đã được đăng 2Sao.vn',
-    ingredients: [
-        { id: '1287078har3', text: '150 g bột năng' },
-        { id: '12gadfadfg3', text: '80 ml nước sôi' },
-        { id: '12sdS3', text: '20 hoa đậu biếc' },
-        { id: '123ASDj', text: 'Đường phèn' },
-        { id: '12qwr3', text: '1 muỗng cafe gừng' },
-    ],
-    steps: [
-        {
-            id: 'fasdfas',
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1234',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1235',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-
-
-            ]
-        }, {
-            id: '36ypu0y',
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '132',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '57356',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1341234',
-                    imageUrl: 'https://i.pinimg.com/564x/19/a8/50/19a850f56d42d24a7ebd81895b3a9487.jpg',
-                },
-                {
-                    id: '234234223',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1635723',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1223452343',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-            ]
-        }, {
-            id: '908uiyrhtaerd',
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-            ]
-        }, {
-            id: 'fasafdgfhdjghsdfas',
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-
-            ]
-        }
-    ],
-    likes: [1, 2, 3, 4],
-    comments: [{
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-        text: "ha ha day la 1 cai comment",
-    }, {
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        text: "ha ha day la 1 cai comment",
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-    }, {
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        text: "ha ha day la 1 cai comment",
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-    }],
-    slug: 'che-bot-loc-hoa-dau-biec',
-    createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-}
 
 function NewPost(props) {
     const [height, width] = useWindowHeightAndWidth();
     const history = useHistory()
 
+    const { slug } = useParams()
     const formik = useFormik({
         initialValues: initPost,
         validationSchema: Yup.object({
@@ -164,16 +46,33 @@ function NewPost(props) {
             ingredients: Yup.array().required('Nguyên liệu không thể thiếu được.'),
             steps: Yup.array().required('Bạn vui lòng nhập các bước tạo thành món ăn.'),
         }),
-        onSubmit: async (values) => {
-            values.author = JSON.parse(localStorage.getItem('profile')).result.uuid;
-            values.ingredients = values.ingredients.filter(ingredient => ingredient.text)
-            values.steps = values.steps.filter(step => (step.text || step.images.length !== 0))
+        onSubmit: slug ?
+            async (values) => {
+                values.ingredients = values.ingredients.filter(ingredient => ingredient.text)
+                values.steps = values.steps.filter(step => (step.text || step.images.length !== 0))
 
 
-            const { data } = await createPostApi(values)
-            history.push(`/user/${data.author}`)
-        }
+                const { data } = await modifyPostApi(slug, values);
+                history.push(`/post/${data.slug}`)
+            } :
+            async (values) => {
+                values.author = { uuid: JSON.parse(localStorage.getItem('profile')).result.uuid };
+                values.ingredients = values.ingredients.filter(ingredient => ingredient.text)
+                values.steps = values.steps.filter(step => (step.text || step.images.length !== 0))
+
+
+                const { data } = await createPostApi(values)
+                history.push(`/user/${data.author}`)
+            }
     })
+
+    
+    useEffect(async () => {
+        if(slug){
+            const { data } = await api.getPostApi(slug);
+            formik.setValues({ ...data })
+        }
+    }, [])
 
     //handle action ingredients
     const handleAddIngre = () => {
@@ -300,7 +199,9 @@ function NewPost(props) {
         })
     }
 
-
+    if (slug && !formik.values.title) {
+        return (<LoadIcon />)
+    }
 
     return (
         <form onSubmit={formik.handleSubmit} className="new-post-page">
@@ -359,6 +260,8 @@ function NewPost(props) {
                         type="number"
                         className="input-create-post-form w-50"
                         name='ration'
+                        min={0}
+                        max={100}
                         maxLength='5'
                         autoComplete='off'
                         placeholder="Số người ăn"
@@ -373,7 +276,8 @@ function NewPost(props) {
                         type="number"
                         className="input-create-post-form w-50"
                         name='time'
-                        maxLength='5'
+                        min={0}
+                        max={1000}
                         autoComplete='off'
                         placeholder="Số phút"
                         onChange={formik.handleChange}
@@ -446,7 +350,7 @@ function NewPost(props) {
                                 {step.images.map((image, index) => (
                                     <div key={index} style={{ position: 'relative' }}>
                                         <div className="new-post-page--paper--steps--images__image">
-                                            <img src={image.imageUrl} key={index} alt="" />
+                                            <img width='160' height="128" src={image.imageUrl} key={index} alt="" />
                                         </div>
                                         <span className='new-post-page--paper--steps--images__icon'><HighlightOffIcon onClick={() => handleDeleteStepImage(step.id, image.id)} className='pointer' color='disabled' /></span>
                                     </div>
@@ -489,3 +393,125 @@ function NewPost(props) {
 }
 
 export default NewPost;
+
+// const gotPost = {
+//     title: 'Chè Bột Lọc Hoa Đậu Biếc',
+//     author: {
+//         name: 'Nguyen Anh Tu',
+//         imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
+//         uuid: '12345677'
+//     },
+//     thumbnail: 'https://img-global.cpcdn.com/recipes/789b4d37cadb3160/640x640sq70/photo.webp',
+//     ration: 3,
+//     time: 60,
+//     description: 'Bài đã được đăng 2Sao.vn',
+//     ingredients: [
+//         { id: '1287078har3', text: '150 g bột năng' },
+//         { id: '12gadfadfg3', text: '80 ml nước sôi' },
+//         { id: '12sdS3', text: '20 hoa đậu biếc' },
+//         { id: '123ASDj', text: 'Đường phèn' },
+//         { id: '12qwr3', text: '1 muỗng cafe gừng' },
+//     ],
+//     steps: [
+//         {
+//             id: 'fasdfas',
+//             text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
+//             images: [
+//                 {
+//                     id: '123',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '1234',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '1235',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+
+
+//             ]
+//         }, {
+//             id: '36ypu0y',
+//             text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
+//             images: [
+//                 {
+//                     id: '132',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '57356',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '1341234',
+//                     imageUrl: 'https://i.pinimg.com/564x/19/a8/50/19a850f56d42d24a7ebd81895b3a9487.jpg',
+//                 },
+//                 {
+//                     id: '234234223',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '1635723',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '1223452343',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//             ]
+//         }, {
+//             id: '908uiyrhtaerd',
+//             text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
+//             images: [
+//                 {
+//                     id: '123',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//             ]
+//         }, {
+//             id: 'fasafdgfhdjghsdfas',
+//             text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
+//             images: [
+//                 {
+//                     id: '123',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+//                 {
+//                     id: '123',
+//                     imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
+//                 },
+
+//             ]
+//         }
+//     ],
+//     likes: [1, 2, 3, 4],
+//     comments: [{
+//         author: {
+//             name: 'Nguyen Anh Tu',
+//             imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
+//             uuid: '12345677'
+//         },
+//         createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
+//         text: "ha ha day la 1 cai comment",
+//     }, {
+//         author: {
+//             name: 'Nguyen Anh Tu',
+//             imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
+//             uuid: '12345677'
+//         },
+//         text: "ha ha day la 1 cai comment",
+//         createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
+//     }, {
+//         author: {
+//             name: 'Nguyen Anh Tu',
+//             imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
+//             uuid: '12345677'
+//         },
+//         text: "ha ha day la 1 cai comment",
+//         createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
+//     }],
+//     slug: 'che-bot-loc-hoa-dau-biec',
+//     createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
+// }

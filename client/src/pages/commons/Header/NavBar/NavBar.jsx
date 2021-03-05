@@ -10,12 +10,12 @@ import './styles.sass';
 const navList = [
     {
         name: "Khám phá",
-        path: "/suggest",
+        path: "/",
         icon: (<AppsRoundedIcon style={{ position: 'relative', top: '5px' }} />),
     },
     {
         name: "Món mới",
-        path: "/create-post",
+        path: "/post/create",
         icon: (<AddCircleOutlineRoundedIcon style={{ position: 'relative', top: '5px' }} />),
     },
 ]
@@ -48,7 +48,7 @@ function NavBar({ user, handleLogout }) {
         },
         {
             name: "Thông tin cá nhân",
-            path: `/user/${user?.result.uuid}/infomation`,
+            path: `/user/${user?.result.uuid}/information`,
         },
     ] :
         [
@@ -90,7 +90,7 @@ function NavBar({ user, handleLogout }) {
                         }}
                         className="nav-bar--item block-profile">
                         <b>{user.result.name}</b>
-                        <div className="nav-bar--item__avatar"><img width="50" height="50" src={user.result.imageUrl} alt="" /></div>
+                        <div className="nav-bar--item__avatar"><img referrerPolicy="no-referrer" width="50" height="50" src={user.result.imageUrl} alt="" /></div>
                     </span>
                     {/* dropdown menu */}
                     <div className={`${isDrop ? "dropdown-content" : "hide-dropdown"} shadow`}>

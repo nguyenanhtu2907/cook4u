@@ -96,8 +96,8 @@ function Signin(props) {
         const token = res?.tokenId;
 
         try {
-            await signinGoogleApi(result)
-            dispatch({ type: 'SIGNIN', payload: { result, token } });
+            const {data} = await signinGoogleApi(result);
+            dispatch({ type: 'SIGNIN', payload: { result: data, token } });
             history.push('/')
         } catch (error) {
             console.log(error);
@@ -113,8 +113,8 @@ function Signin(props) {
         <div className="signin-page">
             <div className="bg-black">
 
-                <form onSubmit={type == 'signup' ? signupFormik.handleSubmit : signinFormik.handleSubmit} className="signin-form shadow">
-                    <span className="signin-form--title">{type == 'signin' ? 'Đăng nhập' : 'Đăng ký'}</span>
+                <form onSubmit={type === 'signup' ? signupFormik.handleSubmit : signinFormik.handleSubmit} className="signin-form shadow">
+                    <span className="signin-form--title">{type === 'signin' ? 'Đăng nhập' : 'Đăng ký'}</span>
                     <p>Let's cook with us <FavoriteIcon style={{ position: 'relative', top: '5px', color: 'red' }} /> </p>
 
                     {messageFrDb.message && (
@@ -123,7 +123,7 @@ function Signin(props) {
                         </span>
                     )}
 
-                    {type == 'signup' && (
+                    {type === 'signup' && (
                         <div className={`${width < 768 && "flex-column"} signin-form--control`}>
                             <label htmlFor="name">Tên đầy đủ: </label>
                             <input
@@ -185,7 +185,7 @@ function Signin(props) {
                         }
                     </div>
 
-                    {type == 'signup' && (
+                    {type === 'signup' && (
                         <>
                             <div className={`${width < 768 && "flex-column"} signin-form--control`}>
                                 <label htmlFor="confirm_password">Nhập lại mật khẩu:</label>
@@ -248,8 +248,8 @@ function Signin(props) {
                         </>
                     )}
                     {/* button */}
-                    <button type="submit" className={`button-submit ${width <= 1024 && 'full-width'}`}>{type == 'signup' ? "Đăng ký ngay" : "Đăng nhập ngay"}</button>
-                    {type == 'signin' && (
+                    <button type="submit" className={`button-submit ${width <= 1024 && 'full-width'}`}>{type === 'signup' ? "Đăng ký ngay" : "Đăng nhập ngay"}</button>
+                    {type === 'signin' && (
                         <>
                             <span className="option-signin">
                                 hoặc
@@ -272,7 +272,7 @@ function Signin(props) {
                             />
                         </>
                     )}
-                    {type == 'signup' ? (
+                    {type === 'signup' ? (
                         <span className='signin-form--option'>Bạn đã có tài khoản? <Link to="/user/signin" >Đăng nhập ngay</Link> </span>
                     ) : (
                             <span className='signin-form--option'>Bạn chưa có tài khoản? <Link to="/user/signup" >Đăng ký ngay</Link> </span>

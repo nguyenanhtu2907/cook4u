@@ -9,24 +9,23 @@ import logo from './logo.jpg';
 import mobileLogo from './mobile-logo.jpg';
 import NavBar from './NavBar/NavBar';
 import SmallNavBar from './SmallNavBar/SmallNavBar';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 function Header(props) {
     const [height, width] = useWindowHeightAndWidth();
+    const signinUser = useSelector(state => state.user.authData)
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
-    console.log(user);
 
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
-
     const handleLogout = () => {
         dispatch({ type: "LOGOUT" });
-
-        history.push('/');
+        dispatch({type: 'RESET_POSTS'})
+        history.push('/user/signin');
         setUser(null)
-
     }
+
     useEffect(() => {
         const token = user?.token;
 
@@ -39,8 +38,8 @@ function Header(props) {
         }
         //JWT...
 
-        setUser(JSON.parse(localStorage.getItem('profile')))
-    }, [location])
+        setUser(signinUser)
+    }, [location, signinUser])
     return (
         <>
             <header className="header shadow">

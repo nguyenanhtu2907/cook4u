@@ -1,0 +1,70 @@
+.post-card
+    width: 100%
+    display: inline-block
+    padding: 1rem 0
+    margin: auto
+    transition: 0.2s
+    &:hover
+        transform: scale(1.05)
+        transition: 0.2s
+
+    &--author
+        display: flex
+        align-items: center
+        text-decoration: none
+        background-color: none
+        margin-bottom: 5px
+        &__avatar
+            height: 40px
+            width: 40px
+            border-radius: 50%
+            margin-top: 5px
+            
+            background-color: #d1d1d1
+            display: inline-block
+            overflow: hidden
+            text-align: center
+            img 
+                height: auto
+                width: 100%
+        &__name
+            color: #6e6b6b
+            margin-left: 5px
+            font-weight: 400
+    &--content
+        display: block
+        text-decoration: none
+        background-color: #ffffff
+        border-radius: 5px
+        overflow: hidden
+        &--thumbnail
+            width: 100%
+            img
+                width: 100%
+                height: auto
+                object-fit: contain
+        &--info
+            color: #6e6b6b
+            &--title
+                h2  
+                    margin: 7px 0
+                    font-weight: 500
+                    font-size: 1.5rem
+                &--icon
+                    display: flex
+                    align-items: center
+                    &__like
+                        margin-right: auto
+                        svg
+                            position: relative
+                            top: 5px
+            span
+                color: #aeaeae
+                font-size: 1rem
+                padding-top: 7px
+                svg
+                    position: relative
+                    top: 2px
+            p
+                margin: 7px 0
+            

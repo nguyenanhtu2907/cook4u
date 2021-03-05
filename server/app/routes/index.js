@@ -1,7 +1,7 @@
 import postRouter from './post.js';
 import userRouter from './user.js';
 
-const route = (app)=>{
+const route = (app) => {
 
     app.use('/post', postRouter);
 

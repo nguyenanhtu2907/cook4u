@@ -7,10 +7,18 @@
 .flex-row
     display: flex
     flex-direction: row    
-.flex-column
-    display: flex
-    flex-direction: column
-    text-align: center
+    transition: 0.3s linear
+.flex-column-logo
+    text-align: center !important
+    input
+        font-size: 1.1rem
+        width: 40%
+    button
+        height: 47.5px
+        top: -1px
+        font-weight: 600
+    .search-form--icon
+        margin-top: 12px
 
 .search-form    
     width: 100%
@@ -28,6 +36,7 @@
         width: 270px
         border-radius: 10px 0px 0px 10px
         border: solid #dbdada 1px
+        font-size: 1rem
         
         &::placeholder
             color: #7d7d7d
@@ -37,7 +46,7 @@
             outline: none
 
     &--button
-        height: 41.5px
+        height: 44.5px
         color: #ffffff
         background-color: #ff8822
         font-weight: 500
@@ -46,6 +55,7 @@
         cursor: pointer
         position: relative
         left: -1px
+        top: -1px
         &:focus
             outline: none
 .mr-auto
@@ -55,7 +65,7 @@
     position: relative
     width: 200px
     border-radius: 10px
-    border: solid #dbdada 1px
+    border: none
     
     &::placeholder
         color: #7d7d7d

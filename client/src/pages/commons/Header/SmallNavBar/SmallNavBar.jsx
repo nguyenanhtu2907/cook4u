@@ -9,11 +9,11 @@ import './styles.sass';
 const navList = [
     {
         name: "Khám phá",
-        path: "/suggest",
+        path: "/",
     },
     {
         name: "Món mới",
-        path: "/create-post",
+        path: "/post/create",
     },
 ]
 const optionsUser = [
@@ -45,7 +45,7 @@ function SmallNavBar({ user, handleLogout }) {
         },
         {
             name: "Thông tin cá nhân",
-            path: `/user/${user?.result.uuid}/infomation`,
+            path: `/user/${user?.result.uuid}/information`,
         },
     ] :
         [
@@ -93,7 +93,7 @@ function SmallNavBar({ user, handleLogout }) {
                     )) :
                     (<span className="nav-bar--item block-profile">
                         <b>{user.result.name}</b>
-                        <div className="nav-bar--item__avatar"><img width="50" height="50" src={user.result.imageUrl} alt="" /></div>
+                        <div className="nav-bar--item__avatar"><img referrerPolicy="no-referrer" width="50" height="50" src={user.result.imageUrl} alt="" /></div>
                     </span>)}
                 {navList.map(option => (
                     <Link key={option.path} className="dropdown-content--item " to={option.path}><ArrowRightAltIcon className="dropdown-content--item__icon" style={{ position: 'relative', top: '5px', color: '#ff8822' }} />{option.name}</Link>

@@ -1,28 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import FavoriteBorderRoundedIcon from '@material-ui/icons/FavoriteBorderRounded';
 import FavoriteRoundedIcon from '@material-ui/icons/FavoriteRounded';
+import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
+import AccessTimeRoundedIcon from '@material-ui/icons/AccessTimeRounded';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import DoneRoundedIcon from '@material-ui/icons/DoneRounded';
 import ChatBubbleIcon from '@material-ui/icons/ChatBubble';
 import SendRoundedIcon from '@material-ui/icons/SendRounded';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Masonry } from 'masonic';
 
 import './styles.sass'
 import Step from './Step';
 import Comment from './Comment';
 import { useWindowHeightAndWidth } from '../commons/custom/useWindowHeightAndWidth';
+import * as api from '../../api/index';
+import LoadIcon from '../commons/components/LoadIcon/LoadIcon';
+import { handleReport } from '../commons/custom/handleReport';
+import PostCard from '../commons/components/PostCard/PostCard';
 
 function Post(props) {
+    const currentUser = JSON.parse(localStorage.getItem('profile'))?.result;
+    const [morePosts, setMorePosts] = useState([])
+    const [post, setPost] = useState(null);
 
-    const [post, setPost] = useState(initPost)
+    const liked = post?.likes.findIndex(userId => userId === currentUser?.uuid);
+    const following = currentUser?.following.findIndex(userId => userId === post?.author.uuid);
 
     const [isOptionOpen, setIsOptionOpen] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false)
+    const history = useHistory()
+    const dispatch = useDispatch();
+    const [height, width] = useWindowHeightAndWidth();
 
-    const [height, width ] = useWindowHeightAndWidth();
-
+    //option in thumbnail
     useEffect(() => {
         const hideDropdown = () => {
             setIsOptionOpen(false)
@@ -36,23 +51,64 @@ function Post(props) {
 
     //get slug from url
     const { slug } = useParams();
-    useEffect(() => {
-        //call api to get post
-    }, [])
+    //call api to get post
+    useEffect(async () => {
+        const { data } = await api.getPostApi(slug);
+        data.createdAt = new Date(data.createdAt)
+        setPost(data)
+        window.scrollTo(0, 0)
+        //can scroll smooth here ??
 
+        const res = await api.getMorePostsApi(slug, data.author.uuid);
+        setMorePosts(res.data);
+        //why doesn't it refresh data in masonry here ???
+    }, [slug])
+
+    //follow
+    const handleClickFollow = async () => {
+        if (currentUser) {
+            const { data } = await api.followingApi(currentUser?.uuid, post.author.uuid);
+            if (!data.message) {
+                dispatch({ type: 'SIGNIN', payload: { result: data.currentUser, token: JSON.parse(localStorage.getItem('profile'))?.token } })
+            }else{
+                alert(data.message)
+            }
+        } else {
+            alert('Vui lòng đăng nhập để sử dụng chức năng này.')
+        }
+    }
+    //like
+    const handleClickLike = async (e, id) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (currentUser) {
+            const { data } = await api.likePostsApi(post.slug, currentUser?.uuid);
+            dispatch({ type: 'UPDATE_POSTS', payload: data })
+            data.createdAt = new Date(data.createdAt)
+            setPost({ ...data })
+        } else {
+            alert('Vui lòng đăng nhập để sử dụng chức năng này.')
+        }
+    }
+    //comment
     const [comment, setComment] = useState('');
     const handleChangeComment = (e) => {
         setComment(e.target.value)
     }
-    const handleSubmitComment = (e) => {
+    const handleSubmitComment = async (e) => {
         e.preventDefault();
+        if (!localStorage.getItem('profile')) {
+            alert("Hãy đăng nhập để bình luận bạn nhé.")
+            return;
+        }
         //submit to db and get post after submit: newPost
-        //setPost(newPost)
-        if (!localStorage.getItem('profile')) alert("Hãy đăng nhập để bình luận bạn nhé.")
-        console.log(comment.trim());
+        const { data } = await api.commentPostsApi(post?.slug, currentUser?.uuid, {
+            text: comment.trim(),
+        });
+        data.createdAt = new Date(data.createdAt)
+        setPost(data)
         setComment('')
     }
-
     //handle button deletePost
     const handleClickOpenDelete = (e) => {
         e.stopPropagation()
@@ -63,17 +119,22 @@ function Post(props) {
         e.stopPropagation()
         setOpenDialog(false);
     };
-    const handleCickAgreeDelete = (e) => {
+    const handleCickAgreeDelete = async (e) => {
         e.stopPropagation()
         setOpenDialog(false);
-        //thao tác xóa bài viết ở đây
+        const { data } = await api.deletePostApi(post.slug);
+        console.log(data);
+        dispatch({ type: 'REMOVE_POST', payload: data });
+        history.push(`/user/${post.author.uuid}`);
     };
 
-    const handleReport = (e) => {
+    const handleReportPost = (e) => {
         e.preventDefault()
-        // e.stopPropagation()
-        //thao tác xóa bài viết ở đây
+        handleReport('post', post.slug, currentUser.uuid)
+
     };
+
+    if (!post) return (<LoadIcon />)
 
     return (
         <div className="post-page">
@@ -81,76 +142,103 @@ function Post(props) {
                 <div className="post-page--paper__thumbnail">
                     <img width="680" height="480" src={post.thumbnail} alt="" />
                 </div>
-                <div className="post-page--paper__option-icon" onClick={(e) => { e.stopPropagation(); setIsOptionOpen(!isOptionOpen) }}>
-                    <IconButton ><MoreVertIcon /></IconButton>
-                </div>
-                {isOptionOpen && <div className="post-page--paper__option-list">
-                    <ul>
-                        <li>
-                            <Link to={`/post/${post.slug}/edit`} >Chỉnh sửa</Link>
-                        </li>
-                        <li >
-                            <Link onClick={handleClickOpenDelete} to='/'>Xóa bài</Link>
-                        </li>
-                        <li >
-                            <Link onClick={handleReport} to='/'>Báo cáo</Link>
-                        </li>
-                    </ul>
-                    <Dialog
-                        open={openDialog}
-                        onClose={handleCloseDelete}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">{"Bạn muốn xóa bài viết?"}</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-description">
-                                Thao tác của bạn sẽ xóa vĩnh viễn bài viết và không thể khôi phục. Bạn chắc chắn chứ?
+                {/* option user */}
+                {currentUser && (
+                    <>
+                        <div className="post-page--paper__option-icon" onClick={(e) => { e.stopPropagation(); setIsOptionOpen(!isOptionOpen) }}>
+                            <IconButton ><MoreVertIcon color='secondary' /></IconButton>
+                        </div>
+                        {isOptionOpen && <div className="post-page--paper__option-list">
+                            <ul>
+
+                                {currentUser?.uuid === post.author.uuid && (<>
+                                    <li>
+                                        <Link to={`/post/${post.slug}/edit`} >Chỉnh sửa</Link>
+                                    </li>
+                                    <li >
+                                        <Link onClick={handleClickOpenDelete} to='/'>Xóa bài</Link>
+                                    </li>
+                                </>)}
+                                <li >
+                                    <Link onClick={handleReportPost} to='/'>Báo cáo</Link>
+                                </li>
+                            </ul>
+                            <Dialog
+                                open={openDialog}
+                                onClose={handleCloseDelete}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                            >
+                                <DialogTitle id="alert-dialog-title">{"Bạn muốn xóa bài viết?"}</DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description">
+                                        Thao tác của bạn sẽ xóa vĩnh viễn bài viết và không thể khôi phục. Bạn chắc chắn chứ?
                             </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleCickAgreeDelete} color="primary" autoFocus>
-                                Xóa ngay
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleCickAgreeDelete} color="primary" autoFocus>
+                                        Xóa ngay
                             </Button>
-                            <Button onClick={handleCloseDelete} color="primary">
-                                Suy nghĩ lại
+                                    <Button onClick={handleCloseDelete} color="primary">
+                                        Suy nghĩ lại
                             </Button>
-                        </DialogActions>
-                    </Dialog>
-                </div>
-                }
+                                </DialogActions>
+                            </Dialog>
+                        </div>
+                        }
+                    </>
+                )}
                 <div className="post-page--paper--intro pd-left-3 end-block">
                     <div className="post-page--paper--intro--post-title">
                         <h1 className="post-page--paper--intro--post-title__title">
                             {post.title}
                         </h1>
-                        {/* tablelet = h2 mobile = h3 */}
-                        <div className="post-page--paper--intro--post-title__like-icon pointer">
-                            <FavoriteBorderRoundedIcon fontSize="large" />
-                            {/* <FavoriteRoundedIcon color="error" fontSize="large" /> */}
+
+                        {/* button like */}
+                        <div onClick={handleClickLike} className="post-page--paper--intro--post-title__like-icon pointer">
+                            {liked === -1 ? (
+                                <FavoriteBorderRoundedIcon fontSize="large" />
+                            ) : (
+                                    <FavoriteRoundedIcon color="error" fontSize="large" />
+                                )}
                         </div>
                     </div>
                     <div className="post-page--paper--intro--time">
-                        {`Đăng ngày ${post.createdAt.getDay()} tháng ${post.createdAt.getMonth() + 1} năm ${post.createdAt.getFullYear()}`}
+                        {`Cập nhật ngày ${post.createdAt.getDay()} tháng ${post.createdAt.getMonth() + 1} năm ${post.createdAt.getFullYear()}`}
                     </div>
                     <div className="post-page--paper--intro--post-author">
                         <Link to={`/user/${post.author.uuid}`} className="post-page--paper--intro--post-author__info">
                             <div className="post-page--paper--intro--post-author__info--avatar">
-                                <img src={post.author.imageUrl} alt="" />
+                                <img referrerPolicy="no-referrer" src={post.author.imageUrl} alt="" />
                             </div>
                             <div className="post-page--paper--intro--post-author__info--name">
                                 {post.author.name}
                             </div>
                         </Link>
-                        <div className="post-page--paper--intro--post-author__button">
-                            <Button ><PersonAddIcon fontSize='small' /> <span>Theo dõi</span></Button>
+                        <div onClick={handleClickFollow} className="post-page--paper--intro--post-author__button">
+                            {following === undefined || following === -1 ? (
+                                <Button ><PersonAddIcon fontSize='small' /> <span>Theo dõi</span></Button>
+                            ) : (
+                                    <Button ><DoneRoundedIcon fontSize='small' /> <span>Đã theo dõi</span></Button>
+                                )}
                         </div>
                     </div>
                     <span className="post-page--paper--intro--post-about">
                         {post.description}
                     </span>
                 </div>
-
+                {(post.time || post.ration) &&
+                    <div className="post-page--paper--more-info pd-left-3 pd-right-3 end-block">
+                        {post.time &&
+                            <div className="post-page--paper--more-info__item">
+                                <AccessTimeRoundedIcon /> {post.time} phút
+                            </div>}
+                        {post.ration &&
+                            <div className="post-page--paper--more-info__item">
+                                <GroupRoundedIcon /> {post.ration} người
+                            </div>}
+                    </div>
+                }
                 <div className="post-page--paper--ingredients pd-left-3 end-block">
                     <h2 className="title-page">
                         Nguyên liệu
@@ -172,7 +260,6 @@ function Post(props) {
                     </ul>
                 </div>
 
-
                 <div className="post-page--paper--comment pd-left-3 end-block">
                     <h2 className="title-page">
                         <ChatBubbleIcon fontSize='large' style={{ position: 'relative', top: '10px' }} /> Bình luận
@@ -180,7 +267,7 @@ function Post(props) {
 
                     <ul className="post-page--paper--comment__comments">
                         {post.comments.map((comment, index) => (
-                            <Comment comment={comment} key={index} />
+                            <Comment author={post.author.uuid} comment={comment} key={index} slug={post.slug} setPost={setPost} />
                         ))}
                     </ul>
 
@@ -192,27 +279,27 @@ function Post(props) {
                             <div className="post-page--paper--comment--content__form__input">
                                 <input placeholder="Suy nghĩ của bạn là gì?" value={comment} onChange={handleChangeComment} type="text" autoComplete='off' />
                             </div>
-                            <div className={`post-page--paper--comment--content__form__icon ${width<550?"right-2":''}`}>
+                            <div className={`post-page--paper--comment--content__form__icon ${width < 550 ? "right-2" : ''}`}>
                                 <IconButton type='submit'><SendRoundedIcon color="disabled" /> </IconButton>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <div className="post-page--paper--more pd-left-3 end-block">
+                <div className="post-page--paper--more pd-left-3 pd-right-3 end-block">
                     <h3 className="title-page">
                         {`Một số bài viết khác của ${post.author.name}`}
                     </h3>
                     <div className="more--posts">
-
-                        {morePost.map((post, index) => {
-                            //SmallPost
-                        })}
+                        <Masonry
+                            items={morePosts}
+                            columnGutter={10}
+                            columnWidth={150}
+                            overscanBy={4}
+                            render={PostCard}
+                        />
                     </div>
                 </div>
-
-
-
 
 
             </div>
@@ -221,158 +308,3 @@ function Post(props) {
 }
 
 export default Post;
-
-const initPost = {
-    title: 'Chè Bột Lọc Hoa Đậu Biếc',
-    author: {
-        name: 'Nguyen Anh Tu',
-        imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-        uuid: '12345677'
-    },
-    thumbnail: 'https://img-global.cpcdn.com/recipes/789b4d37cadb3160/640x640sq70/photo.webp',
-    ration: 3,
-    time: 60,
-    description: 'Bài đã được đăng 2Sao.vn',
-    ingredients: [
-        { id: '1287078har3', text: '150 g bột năng' },
-        { id: '12gadfadfg3', text: '80 ml nước sôi' },
-        { id: '12sdS3', text: '20 hoa đậu biếc' },
-        { id: '123ASDj', text: 'Đường phèn' },
-        { id: '12qwr3', text: '1 muỗng cafe gừng' },
-    ],
-    steps: [
-        {
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1234',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1235',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-
-
-            ]
-        }, {
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '132',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '57356',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/a86ed9f63e540cdf/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1341234',
-                    imageUrl: 'https://i.pinimg.com/564x/19/a8/50/19a850f56d42d24a7ebd81895b3a9487.jpg',
-                },
-                {
-                    id: '234234223',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1635723',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-                {
-                    id: '1223452343',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/3da9e488370a2ab7/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-            ]
-        }, {
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-            ]
-        }, {
-            text: 'Cho bột vào thố, tạo thành một lỗ chính giữa, cho nước hoa đậu hiếc đang sôi cho vào, dùng vá gỗ trộn đều, rồi nhồi bột cho đến khi dẻo mịn.',
-            images: [
-                {
-                    id: '123',
-                    imageUrl: 'https://img-global.cpcdn.com/steps/647c3a7e13330012/160x128cq70/che-b%E1%BB%99t-l%E1%BB%8Dc-hoa-d%E1%BA%ADu-bi%E1%BA%BFc-recipe-step-1-photo.webp',
-                },
-            ]
-        }
-    ],
-    likes: [1, 2, 3, 4],
-    comments: [{
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-        text: "ha ha day la 1 cai comment",
-    }, {
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        text: "ha ha day la 1 cai comment",
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-    }, {
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        text: "ha ha day la 1 cai comment",
-        createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-    }],
-    slug: 'che-bot-loc-hoa-dau-biec',
-    createdAt: new Date("2021-02-26T16:57:55.195+00:00"),
-}
-const morePost = [
-    {
-        title: 'Lẩu Cầy',
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        thumbnail: 'https://img-global.cpcdn.com/recipes/fe1a9cb129fc8e42/680x482cq70/l%E1%BA%A9u-c%E1%BA%A7y-recipe-main-photo.webp',
-        slug: '123',
-    },
-    {
-        title: 'Kem chuối socola',
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        thumbnail: 'https://img-global.cpcdn.com/recipes/4ddc099dd225afa3/680x482cq70/kem-chu%E1%BB%91i-socola-recipe-main-photo.webp',
-        slug: '123',
-    },
-    {
-        title: 'Kẹo chip chip cam',
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        thumbnail: 'https://img-global.cpcdn.com/recipes/48c902c0598d6bc4/680x482cq70/k%E1%BA%B9o-chip-chip-cam-recipe-main-photo.webp',
-        slug: '123',
-    },
-    {
-        title: 'Quà lưu niệm của cookpad',
-        author: {
-            name: 'Nguyen Anh Tu',
-            imageUrl: 'https://i.pinimg.com/564x/2c/93/5b/2c935b1c8bb1b8f2d730ead7602ebf3a.jpg',
-            uuid: '12345677'
-        },
-        thumbnail: 'https://img-global.cpcdn.com/recipes/6c834ede69ef7ae1/680x482cq70/qua-l%C6%B0u-ni%E1%BB%87m-c%E1%BB%A7a-cookpad-recipe-main-photo.webp',
-        slug: '123',
-    },
-]

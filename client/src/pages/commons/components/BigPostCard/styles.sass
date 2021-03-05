@@ -1,0 +1,74 @@
+.big-card
+    padding: 1%
+    margin: 10px 0
+    border: 1px solid #d8d8d8
+    border-radius: 5px
+    display: flex
+    width: 98%
+    justify-content: space-between
+    &--image 
+        height: 250px
+        border-radius: 5px
+        max-width: 200px
+        min-width: 15% 
+        overflow: hidden
+        flex-shrink: 0
+        img
+            width: 100%
+            height: 100%
+            object-fit: cover
+    &--content
+        width: 80%
+        display: flex
+        flex-direction: column
+        &__title
+            margin: 0.7rem
+            color: #6e6b6b
+            width: 100%
+            &__text
+                display: block
+                margin-right: auto
+                text-decoration: none
+                margin-top: 1px
+                
+                h3
+                    max-width: 100%
+                    font-weight: 500
+                    color: #6e6b6b
+                    margin: 0
+                    margin-left: -10px
+                h2
+                    max-width: 100%
+                    font-weight: 500
+                    color: #6e6b6b
+                    margin: 0
+                    margin-left: -10px
+            
+        &__author
+            text-decoration: none
+            color: #6e6b6b
+            display: flex
+            text-align: center
+            line-height: 20px
+            align-items: center
+            &__image
+                width: 50px
+                height: 50px
+                border-radius: 10%
+                overflow: hidden
+                img
+                    object-fit: cover
+            &__name
+                padding-left: 5px
+            &__like-icon
+                width: 50px
+                margin: 0px 15px 0 auto
+                svg
+                    position: relative
+                    top: 5px
+                    cursor: pointer
+        
+        &__more-info
+            margin-right: 1%
+            color: #6e6b6b
+    

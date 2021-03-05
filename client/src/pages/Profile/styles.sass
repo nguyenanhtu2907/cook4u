@@ -1,0 +1,141 @@
+.profile-page
+    width: 100%
+    background-color: #fffefa
+    font-size: 17px
+    height: 100vh   
+    &--bg-avatar
+        width: 100%
+        height: 100px
+        overflow: hidden
+        margin-top: -10px
+        img 
+            width: 100%
+            height: auto 
+    &--paper 
+        max-width: 1000px
+        margin: auto
+        background-color: #ffffff
+        margin-bottom: 30px
+        text-align: center
+        &--info 
+            position: relative
+            border-radius: 10px
+            &__setting
+                color: #9e9d9d
+                position: absolute 
+                top: 1%
+                left: 1%
+                &:hover
+                    color: #6e6b6b
+                
+                &:hover svg
+                    transform: rotate(360deg)
+                    transition: 1s
+            &__options
+                position: absolute;
+                display: block
+                border-radius: 5px
+                border: 1px solid #d8d8d8
+                overflow: hidden
+                padding: 0
+                margin: 0
+                top: 11%
+                left: 1% 
+                background-color: #ffffff
+                transition: 0.1s linear
+                li
+                    font-size: 1rem
+                    list-style: none 
+                    text-align: left 
+                    padding: 10px 10px
+                    &:hover
+                        background-color: #d8d8d8
+                &__hide
+                    top: 0%
+                    opacity: 0
+                    visibility: hidden
+                    transition: 0.3s linear
+                    height: 0
+
+            &--avatar
+                position: relative
+                top: -50px
+                border-radius: 50%
+                overflow: hidden
+                width: 140px
+                height: 140px
+                border: 5px solid #ff8822 
+                margin: auto
+                
+                img
+                    width: 100%
+                    height: auto
+                    object-fit: contain
+            &--name 
+                color: #6e6b6b
+                h4
+                    color: #434343
+                    font-size: 1.7rem
+                    font-weight: 500
+                    margin: -1.5rem 0 1rem 0
+            &--more 
+                display: flex
+                justify-content: center
+                margin: 10px
+                &__item
+                    color: #6e6b6b
+                    padding: 5px 10px
+                    p 
+                        margin: 0
+                        color: #434343
+                        font-size: 1.2rem
+                        font-weight: 400
+            &--text 
+                display: flex
+                padding: 1% 4% 1% 5%
+                justify-content: space-between
+                align-items: center
+                color: #6e6b6b
+                &__description
+
+        &--content
+            border-radius: 10px
+            text-align: left
+            margin-top: 1rem
+            h3 
+                color: #6e6b6b
+                padding-bottom: 2rem
+            &--posts 
+                &__head
+                    margin-top: 1rem
+                    h5 
+                        font-size: 1rem
+                        color: #6e6b6b
+                        font-weight: 500
+                        margin: 0
+                        padding-top: 1%
+            &--pagi
+                ul
+                    display: flex
+                    padding: 0
+                    justify-content: center
+                    li
+                        list-style: none
+                        margin: 0 5px
+                        color: #6e6b6b
+                        a
+                            padding: 5px 10px
+                            border: 1px solid #d8d8d8
+                            border-radius: 5px
+                            cursor: pointer
+                            &:focus
+                                outline: none
+.click-page
+    background-color: #ff8822
+    color: white
+.dp-none
+    display: none
+                        
+a 
+    text-decoration: none
+    color: inherit

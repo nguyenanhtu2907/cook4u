@@ -27,7 +27,10 @@
             top: 290px
             right: 40px
             width: 100px
-            ul
+            ul  
+                display: flex
+                height: 130px
+                flex-direction: column-reverse
                 padding: 0
                 width: 100px
                 li  
@@ -95,7 +98,16 @@
                 font-size: 17px
                 margin-top: 10px
         
-      
+        &--more-info
+            display: flex
+            &__item
+                width: 50%
+                text-align: center
+                margin-top: 10px
+                color: #6e6b6b
+                svg 
+                    position: relative
+                    top: 5px
         &--ingredients
             &__list
                 padding-left: 0
@@ -114,7 +126,7 @@
                     display: flex
                     &__number
                         background-color: #6e6b6b
-                        width: 38px
+                        width: 24px
                         text-align: center
                         height: 24px
                         border-radius: 50%
@@ -145,7 +157,8 @@
                                 border-radius: 10px
                                 img
                                     width: 100%
-                                    height: auto
+                                    height: 100%
+                                    object-fit: cover
 
         &--comment
             &__comments
@@ -179,12 +192,18 @@
                     top: -10px
                 &__option
                     border: 1px solid #d8d8d8
-                    padding: 5px 10px
                     position: absolute
                     top: 15px
                     right: 3%
                     font-size: 0.9rem
                     cursor: pointer
+                    .bd-bottom
+                        border-bottom: 1px solid #d8d8d8
+                    div
+                        padding: 7px 10px
+                        &:hover
+                            background-color: #dfdfdf
+
                 &__text
                     margin: 10px 4% 15px 40px
                     display: block
@@ -220,8 +239,8 @@
                         top: -3px
                         width: 0
 
-        &--more
-                                  
+        &--more-post
+                         
 
 
 
