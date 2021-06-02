@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post('/create-post', auth, createPost)
 
-router.patch('/:slug/modify', auth, modifyPost)
+router.patch('/modify', auth, modifyPost)
 
-router.delete('/:slug/delete', auth, deletePost)
+router.delete('/delete', auth, deletePost)
 
 router.patch('/:slug/like', auth, likePost)
 
@@ -19,7 +19,7 @@ router.patch('/:slug/delete-comment', auth, deleteCommentPost)
 
 router.get('/search', searchPosts)
 
-router.get('/:slug/more', getMorePosts)
+router.get('/more', getMorePosts)
 
 router.get('/liked', getLikedPosts)
 
