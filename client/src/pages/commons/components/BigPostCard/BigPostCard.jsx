@@ -17,6 +17,7 @@ function BigPostCard(props) {
     if (userId) {
         liked = post.likes.find((id) => id === userId);
     }
+
     const handleClickLike = async (e, id) => {
         e.preventDefault();
         e.stopPropagation();
@@ -36,7 +37,13 @@ function BigPostCard(props) {
                         <div className="big-card--content__author">
                             <Link to={`/user/${post.author.uuid}`} className="big-card--content__author">
                                 <div className="big-card--content__author__image">
-                                    <img width="50" height="50" src={post.author.imageUrl} alt="" />
+                                    <img
+                                        width="50"
+                                        height="50"
+                                        referrerPolicy="no-referrer"
+                                        src={post.author.imageUrl}
+                                        alt=""
+                                    />
                                 </div>
                                 <div className="big-card--content__author__name">{post.author.name}</div>
                             </Link>
