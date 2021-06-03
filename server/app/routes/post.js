@@ -11,11 +11,11 @@ router.patch('/modify', auth, modifyPost)
 
 router.delete('/delete', auth, deletePost)
 
-router.patch('/:slug/like', auth, likePost)
+router.patch('/like', auth, likePost)
 
-router.patch('/:slug/comment', auth, commentPost)
+router.patch('/comment', auth, commentPost)
 
-router.patch('/:slug/delete-comment', auth, deleteCommentPost)
+router.patch('/delete-comment', auth, deleteCommentPost)
 
 router.get('/search', searchPosts)
 

@@ -128,8 +128,8 @@ export const deletePost = async (req, res) => {
 };
 
 export const likePost = async (req, res) => {
-  const { slug } = req.params;
-  const uuid = req.query.user;
+  const { slug } = req.body;
+  const { uuid } = req;
   try {
     const post = await Post.findOne({ slug: slug });
     const postIndex = post.likes.findIndex((userId) => userId === uuid);
@@ -162,13 +162,13 @@ export const likePost = async (req, res) => {
 };
 
 export const commentPost = async (req, res) => {
-  const comment = req.body.text;
-  const { slug } = req.params;
-  const uuid = req.query.user;
+  const { slug, text } = req.body;
+  const { uuid } = req;
+  console.log(req.body);
   try {
     const currentPost = await Post.findOne({ slug: slug });
     currentPost.comments.push({
-      text: comment,
+      text,
       author: uuid,
       createdAt: new Date().getTime(),
     });
@@ -185,8 +185,7 @@ export const commentPost = async (req, res) => {
   }
 };
 export const deleteCommentPost = async (req, res) => {
-  const { createdAt } = req.body;
-  const { slug } = req.params;
+  const { slug, createdAt } = req.body;
   try {
     const currentPost = await Post.findOne({ slug: slug });
     currentPost.comments = [
@@ -209,7 +208,6 @@ export const deleteCommentPost = async (req, res) => {
 
 export const searchPosts = async (req, res) => {
   const { q, skip } = req.query;
-
   try {
     const query = {
       $text: {
