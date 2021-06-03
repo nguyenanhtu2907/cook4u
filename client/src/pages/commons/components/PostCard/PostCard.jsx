@@ -22,7 +22,7 @@ function PostCard({ data }) {
         e.preventDefault()
         e.stopPropagation()
         if (userId) {
-            const { data } = await api.likePostsApi(post.slug, userId);
+            const { data } = await api.likePostsApi({ slug: post.slug });
             dispatch({ type: 'UPDATE_POSTS', payload: data })
             setPost({ ...data })
         } else {

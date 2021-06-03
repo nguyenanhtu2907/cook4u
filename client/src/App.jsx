@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch, Link, Redirect } from 'react-router-dom';
 import Admin from './pages/Admin/Admin';
@@ -59,7 +59,6 @@ function App(props) {
                 </Route>
             </Switch>
         </Router>
-
     );
 }
 
