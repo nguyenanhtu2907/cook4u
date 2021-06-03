@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
 import User from "../models/User.js";
 import Post from "../models/Post.js";
 import Report from "../models/Report.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { getPostInfo } from "../common/getPostDetail.js";
 
 export const signup = async (req, res) => {
   const newUser = req.body;
@@ -142,11 +144,11 @@ export const getUserInfo = async (req, res) => {
     user.posts = number;
 
     let likedPosts = [];
-    const slugs = user.liked_posts.slice(0, 10);
-    for (var slug of slugs) {
-      const post = await Post.findOne({ slug: slug });
-
-      likedPosts.push(post);
+    const postIds = user.liked_posts.slice(0, 10);
+    for (var postId of postIds) {
+      const post = await Post.findOne({ _id: postId });
+      const detailPost = await getPostInfo(post);
+      likedPosts.push(detailPost);
     }
     user.likedPosts = likedPosts;
 

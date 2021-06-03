@@ -43,6 +43,7 @@ function Profile(props) {
         }
     };
     //load data from server
+
     useEffect(() => {
         getUser();
     }, [uuid]);
@@ -59,7 +60,7 @@ function Profile(props) {
     //follow
     const handleClickFollow = async () => {
         if (currentUser) {
-            const { data } = await api.followingApi(currentUser?.uuid, uuid);
+            const { data } = await api.followingApi({ target: uuid });
             if (!data.message) {
                 dispatch({
                     type: 'SIGNIN',
