@@ -87,8 +87,6 @@ function Home(props) {
               render={PostCard}
             />
           </InfiniteScroll>
-
-          {/* {posts.map(post => <PostCard key={post._id} post={post} short={false} />)} */}
         </div>
       </div>
     </div>

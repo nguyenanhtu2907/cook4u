@@ -18,7 +18,7 @@ import {
     DialogActions,
 } from '@material-ui/core';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Masonry } from 'masonic';
 
 import './styles.sass';
@@ -56,8 +56,8 @@ function Post() {
 
     //get slug from url
     const { slug } = useParams();
-    //call api to get post
-    useEffect(async () => {
+
+    const handleGetPosts = async () => {
         const { data } = await api.getPostApi(slug);
         data.data.createdAt = new Date(data.data.createdAt);
         setPost(data.data);
@@ -65,6 +65,10 @@ function Post() {
         const res = await api.getMorePostsApi({ slug, uuid: data.data.author.uuid });
         setMorePosts(res.data.data);
         //why doesn't it refresh data in masonry here ???
+    };
+
+    useEffect(() => {
+        handleGetPosts();
     }, [slug]);
 
     //follow
