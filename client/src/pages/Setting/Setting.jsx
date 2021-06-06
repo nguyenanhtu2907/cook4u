@@ -49,12 +49,13 @@ function Setting(props) {
       dispatch({
         type: "SIGNIN",
         payload: {
-          result: { ...data.newUser },
+          result: { ...data.data.newUser },
           token: JSON.parse(localStorage.getItem("profile"))?.token,
         },
       });
     },
   });
+  
   const passwordFormik = useFormik({
     initialValues: {
       old_password: "",

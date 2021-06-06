@@ -10,6 +10,7 @@ API.interceptors.request.use((req) => {
     return req;
 });
 
+//user
 export const signupApi = (newUser) => API.post(API_ROUTER.SIGN_UP, newUser);
 
 export const signinApi = (user) => API.post(API_ROUTER.SIGN_IN, user);
@@ -25,6 +26,14 @@ export const getFollowUsersApi = (uuid, type, skip) =>
 
 export const updateUserApi = (input) => API.patch(API_ROUTER.UPDATE_USER, input);
 
+export const reportApi = (report) => API.post(API_ROUTER.REPORT, report);
+
+export const getReportsApi = () => API.get(API_ROUTER.REPORT);
+
+export const removeReportApi = (uuid) => API.delete(API_ROUTER.REPORT, { params: { uuid } });
+
+//post
+
 export const createPostApi = (newPost) => API.post(API_ROUTER.CREATE_POST, newPost);
 
 export const modifyPostApi = (input) => API.patch(API_ROUTER.MODIFY_POST, input);
@@ -35,13 +44,6 @@ export const getPostApi = (slug) => API.get(`${API_ROUTER.GET_POST}/${slug}`);
 
 export const getMorePostsApi = (input) => API.get(API_ROUTER.GET_MORE_POST, { params: input });
 
-export const reportApi = (report) => API.post(API_ROUTER.REPORT, report);
-
-export const getReportsApi = () => API.get(API_ROUTER.REPORT);
-
-export const removeReportApi = (uuid) => API.delete(API_ROUTER.REPORT, { params: { uuid } });
-
-//quite complex
 export const getPostsApi = (input) => API.get(API_ROUTER.GET_POST, { params: { input } });
 
 export const getLikedPostsApi = (input) => API.get(API_ROUTER.GET_LIKED_POST, { params: input });

@@ -22,7 +22,7 @@ function SearchResult() {
 
     const handleFetchPost = async ({ selected }) => {
         const { data } = await api.searchApi({ q: search.q, skip: selected * 10 });
-        setPosts(data);
+        setPosts(data.data);
     };
     if (!posts.length) {
         return <LoadIcon />;

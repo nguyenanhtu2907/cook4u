@@ -23,12 +23,13 @@ function BigPostCard(props) {
         e.stopPropagation();
         if (userId) {
             const { data } = await api.likePostsApi({ slug: post.slug });
-            dispatch({ type: 'UPDATE_POSTS', payload: data });
-            setPost({ ...data });
+            dispatch({ type: 'UPDATE_POSTS', payload: data.data });
+            setPost({ ...data.data });
         } else {
             alert('Vui lòng đăng nhập để sử dụng chức năng này.');
         }
     };
+
     return (
         <div>
             <div className="big-card">

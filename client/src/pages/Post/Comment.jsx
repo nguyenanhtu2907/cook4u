@@ -22,8 +22,8 @@ function Comment({ comment, slug, setPost, author }) {
     });
     const handleDeleteComment = async (createdAt) => {
         const { data } = await api.deleteCommentPostsApi({ slug, createdAt: createdAt });
-        data.createdAt = new Date(data.createdAt);
-        setPost(data);
+        data.data.createdAt = new Date(data.data.createdAt);
+        setPost(data.data);
     };
     const handleClickOption = (e) => {
         if (!isOptionOpen) e.stopPropagation();
