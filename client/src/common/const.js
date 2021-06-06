@@ -18,3 +18,10 @@ export const API_ROUTER = {
     DELETE_COMMENT: '/post/delete-comment',
     SEARCH_POST: '/post/search',
 };
+
+export const initResponseType = {
+    success: false,
+    status: 400,
+    data: null,
+    message: ``,
+};

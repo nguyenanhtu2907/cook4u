@@ -75,14 +75,14 @@ function NewPost(props) {
           );
 
           const { data } = await createPostApi(values);
-          history.push(`/user/${data.author}`);
+          history.push(`/user/${data.data.author}`);
         },
   });
 
   useEffect(async () => {
     if (slug) {
       const { data } = await api.getPostApi(slug);
-      formik.setValues({ ...data });
+      formik.setValues({ ...data.data });
     }
   }, []);
 

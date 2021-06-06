@@ -14,6 +14,7 @@ import * as api from '../../api/index';
 import LoadIcon from '../commons/components/LoadIcon/LoadIcon';
 import BigPostCard from '../commons/components/BigPostCard/BigPostCard';
 import { useWindowHeightAndWidth } from '../commons/custom/useWindowHeightAndWidth';
+
 function Profile(props) {
     const { uuid } = useParams();
     const [height, width] = useWindowHeightAndWidth();
@@ -33,11 +34,10 @@ function Profile(props) {
 
     const getUser = async () => {
         const { data } = await api.getInfoUserApi(uuid);
-        data.createdAt = new Date(data.createdAt);
-        setTargetUser(data);
-        // const response = await api.getLikedPostsApi(0, 10, uuid);
-        if (data.likedPosts.length) {
-            setLikedPosts(data.likedPosts);
+        data.data.createdAt = new Date(data.data.createdAt);
+        setTargetUser(data.data);
+        if (data.data.likedPosts?.length) {
+            setLikedPosts(data.data.likedPosts);
         } else {
             setNotFoundLiked(true);
         }
@@ -65,12 +65,12 @@ function Profile(props) {
                 dispatch({
                     type: 'SIGNIN',
                     payload: {
-                        result: data.currentUser,
+                        result: data.data.currentUser,
                         token: JSON.parse(localStorage.getItem('profile'))?.token,
                     },
                 });
-                data.targetUser.createdAt = new Date(data.targetUser.createdAt);
-                setTargetUser(data.targetUser);
+                data.data.targetUser.createdAt = new Date(data.data.targetUser.createdAt);
+                setTargetUser(data.data.targetUser);
             } else {
                 alert(data.message);
             }
@@ -91,7 +91,7 @@ function Profile(props) {
                 limit: 10,
                 target: uuid,
             });
-            setPosts([...data.posts]);
+            setPosts([...data.data.posts]);
             setNotFoundOwn(false);
         }
     };
@@ -107,14 +107,14 @@ function Profile(props) {
             setNotFoundLiked(true);
             setLikedPosts([]);
         } else {
-            setLikedPosts(data);
+            setLikedPosts(data.data);
             setNotFoundLiked(false);
         }
     };
     //handle show follow
     const fetchFollowUsers = async (type, { selected }) => {
         const { data } = await api.getFollowUsersApi(targetUser.uuid, type, selected || 0);
-        setFollowList(data);
+        setFollowList(data.data);
     };
 
     if (!targetUser.uuid) {
@@ -131,7 +131,7 @@ function Profile(props) {
                     <div className="profile-page--paper--info--avatar">
                         <img referrerPolicy="no-referrer" src={targetUser.imageUrl} alt="" />
                     </div>
-                    {JSON.parse(localStorage.getItem('profile'))?.token.length < 500 &&
+                    {JSON.parse(localStorage.getItem('profile'))?.token?.length < 500 &&
                         currentUser.uuid === targetUser.uuid && (
                             <>
                                 <div
@@ -235,8 +235,8 @@ function Profile(props) {
                             <div className="profile-page--paper--content--posts__head end-block">
                                 <h5>{`${
                                     openList === 'followed'
-                                        ? `${targetUser.followed.length} người đã theo dõi ${targetUser.name}`
-                                        : `${targetUser.name} đang theo dõi ${targetUser.following.length} người`
+                                        ? `${targetUser.followed?.length} người đã theo dõi ${targetUser.name}`
+                                        : `${targetUser.name} đang theo dõi ${targetUser.following?.length} người`
                                 }`}</h5>
                             </div>
                             {followList.map((user) => (
@@ -260,11 +260,11 @@ function Profile(props) {
                             {openList === 'followed' ? (
                                 <div
                                     className={`profile-page--paper--content--pagi end-block ${
-                                        targetUser.followed.length <= 20 && 'dp-none'
+                                        targetUser.followed?.length <= 20 && 'dp-none'
                                     }`}
                                 >
                                     <ReactPaginate
-                                        pageCount={Math.ceil(targetUser.followed.length / 20)}
+                                        pageCount={Math.ceil(targetUser.followed?.length / 20)}
                                         pageRangeDisplayed={width < 768 ? 0 : 3}
                                         marginPagesDisplayed={width < 768 ? 0 : 1}
                                         previousLabel={'Trang trước'}
@@ -278,11 +278,11 @@ function Profile(props) {
                             ) : (
                                 <div
                                     className={`profile-page--paper--content--pagi end-block ${
-                                        targetUser.following.length <= 20 && 'dp-none'
+                                        targetUser.following?.length <= 20 && 'dp-none'
                                     }`}
                                 >
                                     <ReactPaginate
-                                        pageCount={Math.ceil(targetUser.following.length / 20)}
+                                        pageCount={Math.ceil(targetUser.following?.length / 20)}
                                         pageRangeDisplayed={width < 768 ? 0 : 3}
                                         marginPagesDisplayed={width < 768 ? 0 : 1}
                                         previousLabel={'Trang trước'}
@@ -325,7 +325,7 @@ function Profile(props) {
                                             <div className="profile-page--paper--content--posts__head end-block">
                                                 <h5>{`Tổng số: ${targetUser.posts} bài viết`}</h5>
                                             </div>
-                                            {posts.length ? (
+                                            {posts?.length ? (
                                                 <div className="profile-page--paper--content--posts__items end-block">
                                                     {posts &&
                                                         posts.map((post, index) => (
@@ -362,9 +362,9 @@ function Profile(props) {
                                     ) : (
                                         <div className="profile-page--paper--content--posts">
                                             <div className="profile-page--paper--content--posts__head end-block">
-                                                <h5>{`Tổng số: ${targetUser.liked_posts.length} bài viết`}</h5>
+                                                <h5>{`Tổng số: ${targetUser.liked_posts?.length} bài viết`}</h5>
                                             </div>
-                                            {likedPosts.length ? (
+                                            {likedPosts?.length ? (
                                                 <div className="profile-page--paper--content--posts__items end-block">
                                                     {likedPosts &&
                                                         likedPosts.map((post, index) => (
@@ -378,11 +378,11 @@ function Profile(props) {
                                     )}
                                     <div
                                         className={`profile-page--paper--content--pagi end-block ${
-                                            targetUser.liked_posts.length <= 10 && 'dp-none'
+                                            targetUser.liked_posts?.length <= 10 && 'dp-none'
                                         }`}
                                     >
                                         <ReactPaginate
-                                            pageCount={Math.ceil(targetUser.liked_posts.length / 10)}
+                                            pageCount={Math.ceil(targetUser.liked_posts?.length / 10)}
                                             pageRangeDisplayed={width < 768 ? 0 : 3}
                                             marginPagesDisplayed={width < 768 ? 0 : 1}
                                             previousLabel={'Trang trước'}

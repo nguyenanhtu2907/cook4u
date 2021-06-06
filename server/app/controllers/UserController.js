@@ -13,7 +13,9 @@ export const signup = async (req, res) => {
     const existingUser = await User.findOne({ username: newUser.username });
     if (existingUser) {
       res.json({
-        succes: false,
+        success: false,
+        status: 200,
+        data: null,
         message: `Username: ${newUser.username} has been already existed!`,
       });
     }
@@ -26,10 +28,15 @@ export const signup = async (req, res) => {
 
     res.json({
       success: true,
+      status: 200,
+      data: null,
       message: `Sign Up Successfully: ${createdUser.username}`,
     });
   } catch (error) {
     res.status(500).json({
+      success: false,
+      status: 400,
+      data: null,
       message: "Something went wrong!!!",
     });
   }
@@ -42,7 +49,9 @@ export const signin = async (req, res) => {
     if (!existingUser) {
       res.json({
         success: false,
-        message: "Username or password is incorrect !!!",
+        status: 400,
+        data: null,
+        message: "Username or password is incorrect!!!",
       });
     }
 
@@ -53,6 +62,8 @@ export const signin = async (req, res) => {
     if (!isCorrectPassword) {
       res.json({
         success: false,
+        status: 400,
+        data: null,
         message: "Username or password is incorrect !!!",
       });
     }
@@ -62,9 +73,19 @@ export const signin = async (req, res) => {
       "test",
       { expiresIn: "1h" }
     );
-    res.status(200).json({ result: existingUser, token: token });
+    res.status(200).json({
+      success: true,
+      status: 200,
+      data: { result: existingUser, token: token },
+      message: "Sign in successfully!",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong!!!" });
+    res.status(500).json({
+      success: false,
+      status: 500,
+      data: null,
+      message: "Something went wrong!!!",
+    });
   }
 };
 
@@ -82,17 +103,30 @@ export const signinGoogle = async (req, res) => {
       existingUser.name = `${req.body.familyName} ${req.body.givenName}`;
       existingUser.imageUrl = req.body.imageUrl;
       await existingUser.save();
-      res.status(200).json(existingUser);
+      res.status(200).json({
+        success: true,
+        status: 200,
+        data: existingUser,
+        message: "Sign in successfully!",
+      });
       return;
     }
 
     const createdUser = new User(newUser);
     await createdUser.save();
 
-    res.status(200).json(createdUser);
+    res.status(200).json({
+      success: true,
+      status: 200,
+      data: createdUser,
+      message: "Sign in successfully!",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
+      success: false,
+      status: 400,
+      data: null,
       message: "Something went wrong!!!",
     });
   }
@@ -102,7 +136,12 @@ export const following = async (req, res) => {
   const { target } = req.body;
   const { uuid } = req;
   if (target === uuid) {
-    res.json({ message: "You can't follow yourself ." });
+    res.json({
+      success: false,
+      status: 400,
+      data: null,
+      message: "You can't follow yourself .",
+    });
     return;
   }
   if (!target) return;
@@ -130,7 +169,12 @@ export const following = async (req, res) => {
     await currentUser.save();
     const number = await Post.countDocuments({ author: target });
     targetUser.posts = number;
-    res.json({ currentUser: currentUser, targetUser: targetUser });
+    res.json({
+      success: true,
+      status: 200,
+      data: { currentUser: currentUser, targetUser: targetUser },
+      message: "Success",
+    });
   } catch (error) {
     console.log(error);
   }
@@ -152,9 +196,8 @@ export const getUserInfo = async (req, res) => {
     }
     user.likedPosts = likedPosts;
 
-    res.json(user);
+    res.json({ success: true, status: 200, data: user, message: "Success" });
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };
@@ -173,11 +216,10 @@ export const updateUser = async (req, res) => {
       user.description = formValues.description;
       await user.save();
       res.json({
-        newUser: user,
-        message: {
-          success: true,
-          message: `Cập nhật thông tin thành công`,
-        },
+        data: { newUser: user },
+        status: 200,
+        success: true,
+        message: `Cập nhật thông tin thành công`,
       });
     } else if (setting === "password") {
       const isCorrectPassword = bcrypt.compareSync(
@@ -188,27 +230,27 @@ export const updateUser = async (req, res) => {
         user.password_hash = bcrypt.hashSync(formValues.password, 12);
         await user.save();
         res.json({
-          message: {
-            success: true,
-            message: "Đổi mật khẩu thành công",
-          },
+          success: true,
+          status: 200,
+          data: null,
+          message: "Đổi mật khẩu thành công",
         });
       } else {
         res.json({
-          message: {
-            success: false,
-            message: "Mật khẩu cũ không đúng",
-          },
+          success: false,
+          status: 400,
+          data: null,
+          message: "Mật khẩu cũ không đúng",
         });
       }
     } else {
       res.status(404);
     }
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };
+
 export const getFollowUsers = async (req, res) => {
   try {
     const { type, skip, uuid } = req.query;
@@ -224,7 +266,7 @@ export const getFollowUsers = async (req, res) => {
         const info = await getInfoUserByUuid(user.followed[i]);
         users.push(info);
       }
-      res.json(users);
+      res.json({ success: true, status: 200, data: users, message: "Success" });
     } else {
       const total = user.following.length;
       for (
@@ -235,10 +277,9 @@ export const getFollowUsers = async (req, res) => {
         const info = await getInfoUserByUuid(user.following[i]);
         users.push(info);
       }
-      res.json(users);
+      res.json({ success: true, status: 200, data: users, message: "Success" });
     }
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };
@@ -253,6 +294,9 @@ export const report = async (req, res) => {
       await report.save();
     }
     res.json({
+      success: true,
+      data: null,
+      status: 200,
       message:
         "Báo cáo thành công. Nếu đối tượng có vấn đề, Admin sẽ thực thi công lý!!!",
     });
@@ -280,9 +324,13 @@ export const getReports = async (req, res) => {
         createdAt: reports[i].createdAt,
       });
     }
-    res.json(response);
+    res.json({
+      success: true,
+      status: 200,
+      data: response,
+      message: "Success",
+    });
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };
@@ -291,9 +339,13 @@ export const removeReport = async (req, res) => {
   try {
     const { uuid } = req.query;
     await Report.deleteOne({ uuid: uuid });
-    res.json({ uuid: uuid });
+    res.json({
+      success: true,
+      status: 200,
+      data: { uuid: uuid },
+      message: "Success",
+    });
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };

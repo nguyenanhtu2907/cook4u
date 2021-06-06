@@ -4,7 +4,11 @@ import { removeVietnameseTones } from "../common/removeVietnameseTones.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { multipleMongooseToObj } from "../common/mongooseToObj.js";
-import { getCommentsInfo, getPostInfo, getPostsInfo } from "../common/getPostDetail.js";
+import {
+  getCommentsInfo,
+  getPostInfo,
+  getPostsInfo,
+} from "../common/getPostDetail.js";
 
 export const getPosts = (req, res) => {
   const { skip, limit, target } = JSON.parse(req.query.input);
@@ -18,7 +22,12 @@ export const getPosts = (req, res) => {
     .then((posts) => getPostsInfo(posts))
     .then((posts) => {
       Post.countDocuments(query).then((total) => {
-        res.json({ posts, total });
+        res.json({
+          success: true,
+          status: 200,
+          data: { posts, total },
+          message: "Success",
+        });
       });
     })
     .catch((e) => {
@@ -44,12 +53,16 @@ export const getLikedPosts = async (req, res) => {
           posts.push(post);
         }
       }
-      res.json(posts);
+      res.json({ success: true, status: 200, data: posts, message: "Sucess" });
     } else {
-      res.json({ message: "Không có bài viết nào." });
+      res.json({
+        success: false,
+        status: 400,
+        data: null,
+        message: "Không có bài viết nào.",
+      });
     }
   } catch (error) {
-    console.log(error);
     res.json(404);
   }
 };
@@ -61,9 +74,13 @@ export const getMorePosts = async (req, res) => {
       .limit(5)
       .sort({ createdAt: -1 });
     const response = [...posts.filter((post) => post.slug !== slug)];
-    res.json(response);
+    res.json({
+      success: true,
+      status: 200,
+      data: response,
+      message: "Success",
+    });
   } catch (error) {
-    console.log(error);
     res.status(404);
   }
 };
@@ -73,7 +90,9 @@ export const getPost = (req, res) => {
   Post.findOne({ slug: slug })
     .then((post) => getPostInfo(post))
     .then((post) => getCommentsInfo(post))
-    .then((post) => res.json(post))
+    .then((post) =>
+      res.json({ success: true, status: 200, data: post, message: "Success" })
+    )
     .catch((e) => {
       console.log(e);
     });
@@ -91,7 +110,7 @@ export const createPost = async (req, res) => {
       ingreString
     )}`;
     await post.save();
-    res.json(post);
+    res.json({ success: true, status: 200, data: post, message: "Success" });
   } catch (error) {
     console.log(error);
   }
@@ -116,7 +135,12 @@ export const modifyPost = async (req, res) => {
       ingreString
     )}`;
     await post.save();
-    res.json({ slug: post.slug });
+    res.json({
+      success: true,
+      status: 200,
+      data: { slug: post.slug },
+      message: "Success",
+    });
   } catch (error) {
     console.log(error);
   }
@@ -126,7 +150,12 @@ export const deletePost = async (req, res) => {
   try {
     const { slug } = req.query;
     await Post.deleteOne({ slug: slug });
-    res.json({ slug: slug });
+    res.json({
+      success: true,
+      status: 200,
+      data: { slug },
+      message: "Success",
+    });
   } catch (error) {
     console.log(error);
   }
@@ -159,17 +188,22 @@ export const likePost = async (req, res) => {
     post
       .save()
       .then((post) => getPostInfo(post))
-      .then((post) => res.json(post));
+      .then((post) =>
+        res.json({ success: true, status: 200, data: post, message: "Success" })
+      );
   } catch (error) {
-    console.log(error);
-    res.status(404).json({ message: "Something went wrong!!!" });
+    res.status(404).json({
+      success: false,
+      data: null,
+      status: 400,
+      message: "Something went wrong!!!",
+    });
   }
 };
 
 export const commentPost = async (req, res) => {
   const { slug, text } = req.body;
   const { uuid } = req;
-  console.log(req.body);
   try {
     const currentPost = await Post.findOne({ slug: slug });
     currentPost.comments.push({
@@ -181,12 +215,19 @@ export const commentPost = async (req, res) => {
       .save()
       .then((post) => getPostInfo(post))
       .then((post) => getCommentsInfo(post))
-      .then((post) => res.json(post))
+      .then((post) =>
+        res.json({
+          success: true,
+          status: 200,
+          data: post,
+          message: "Success",
+        })
+      )
       .catch((e) => {
         console.log(e);
       });
   } catch (error) {
-    console.log(error);
+    res.status(500);
   }
 };
 
@@ -203,12 +244,14 @@ export const deleteCommentPost = async (req, res) => {
       .save()
       .then((post) => getPostInfo(post))
       .then((post) => getCommentsInfo(post))
-      .then((post) => res.json(post))
+      .then((post) =>
+        res.json({ success: true, status: 200, data: post, message: "Success" })
+      )
       .catch((e) => {
         console.log(e);
       });
   } catch (error) {
-    console.log(error);
+    res.status(500);
   }
 };
 
@@ -224,10 +267,16 @@ export const searchPosts = async (req, res) => {
       .limit(10)
       .skip(skip * 1)
       .then((posts) => getPostsInfo(posts))
-      .then((posts) => res.json(posts));
+      .then((posts) =>
+        res.json({
+          success: true,
+          status: 200,
+          data: posts,
+          message: "Success",
+        })
+      );
   } catch (error) {
     console.log(eror);
     res.status(404);
   }
 };
-

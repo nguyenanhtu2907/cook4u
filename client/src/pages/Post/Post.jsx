@@ -59,13 +59,11 @@ function Post() {
     //call api to get post
     useEffect(async () => {
         const { data } = await api.getPostApi(slug);
-        data.createdAt = new Date(data.createdAt);
-        setPost(data);
+        data.data.createdAt = new Date(data.data.createdAt);
+        setPost(data.data);
         window.scrollTo(0, 0);
-        //can scroll smooth here ??
-
-        const res = await api.getMorePostsApi({ slug, uuid: data.author.uuid });
-        setMorePosts(res.data);
+        const res = await api.getMorePostsApi({ slug, uuid: data.data.author.uuid });
+        setMorePosts(res.data.data);
         //why doesn't it refresh data in masonry here ???
     }, [slug]);
 
@@ -77,7 +75,7 @@ function Post() {
                 dispatch({
                     type: 'SIGNIN',
                     payload: {
-                        result: data.currentUser,
+                        result: data.data.currentUser,
                         token: JSON.parse(localStorage.getItem('profile'))?.token,
                     },
                 });
@@ -94,9 +92,9 @@ function Post() {
         e.stopPropagation();
         if (currentUser) {
             const { data } = await api.likePostsApi({ slug: post.slug });
-            dispatch({ type: 'UPDATE_POSTS', payload: data });
-            data.createdAt = new Date(data.createdAt);
-            setPost({ ...data });
+            dispatch({ type: 'UPDATE_POSTS', payload: data.data });
+            data.data.createdAt = new Date(data.data.createdAt);
+            setPost({ ...data.data });
         } else {
             alert('Vui lòng đăng nhập để sử dụng chức năng này.');
         }
@@ -117,8 +115,8 @@ function Post() {
             slug: post?.slug,
             text: comment.trim(),
         });
-        data.createdAt = new Date(data.createdAt);
-        setPost(data);
+        data.data.createdAt = new Date(data.data.createdAt);
+        setPost(data.data);
         setComment('');
     };
     //handle button deletePost
@@ -135,8 +133,7 @@ function Post() {
         e.stopPropagation();
         setOpenDialog(false);
         const { data } = await api.deletePostApi(post.slug);
-        console.log(data);
-        dispatch({ type: 'REMOVE_POST', payload: data });
+        dispatch({ type: 'REMOVE_POST', payload: data.data });
         history.push(`/user/${post.author.uuid}`);
     };
 
