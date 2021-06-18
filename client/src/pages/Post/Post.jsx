@@ -31,46 +31,43 @@ import PostCard from '../commons/components/PostCard/PostCard';
 
 function Post() {
     const currentUser = JSON.parse(localStorage.getItem('profile'))?.result;
+
+    const history = useHistory();
+    const dispatch = useDispatch();
+    const { slug } = useParams();
+
     const [morePosts, setMorePosts] = useState([]);
     const [post, setPost] = useState(null);
     const [comment, setComment] = useState('');
-
-    const liked = post?.likes.findIndex((userId) => userId === currentUser?.uuid);
-    const following = currentUser?.following.findIndex((userId) => userId === post?.author.uuid);
     const [isOptionOpen, setIsOptionOpen] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
-    const history = useHistory();
-    const dispatch = useDispatch();
     const [height, width] = useWindowHeightAndWidth();
+
+    const following = currentUser?.following.findIndex((userId) => userId === post?.author.uuid);
+    const liked = post?.likes.findIndex((userId) => userId === currentUser?.uuid);
 
     //option in thumbnail
     useEffect(() => {
         const hideDropdown = () => {
             setIsOptionOpen(false);
         };
-
         window.addEventListener('click', hideDropdown);
         return () => window.removeEventListener('click', hideDropdown);
     }, []);
 
-    //get slug from url
-    const { slug } = useParams();
-
-    const handleGetPosts = async () => {
-        setMorePosts([]);
-        const { data } = await api.getPostApi(slug);
-        data.data.createdAt = new Date(data.data.createdAt);
-        setPost(data.data);
-        window.scrollTo(0, 0);
-        const res = await api.getMorePostsApi({ slug, uuid: data.data.author.uuid });
-        setMorePosts(res.data.data);
-    };
-
     useEffect(() => {
+        const handleGetPosts = async () => {
+            const { data } = await api.getPostApi(slug);
+            data.data.createdAt = new Date(data.data.createdAt);
+            setPost(data.data);
+            window.scrollTo(0, 0);
+            setMorePosts([]);
+            const res = await api.getMorePostsApi({ slug, uuid: data.data.author.uuid });
+            setMorePosts(res.data.data);
+        };
         handleGetPosts();
     }, [slug]);
 
-    //follow
     const handleClickFollow = async () => {
         if (currentUser) {
             const { data } = await api.followingApi({ target: post.author.uuid });
@@ -90,7 +87,7 @@ function Post() {
         }
     };
 
-    const handleClickLike = async (e, id) => {
+    const handleClickLike = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (currentUser) {
@@ -103,16 +100,12 @@ function Post() {
         }
     };
 
-    const handleChangeComment = (e) => {
-        setComment(e.target.value);
-    };
     const handleSubmitComment = async (e) => {
         e.preventDefault();
         if (!localStorage.getItem('profile')) {
-            alert('Hãy đăng nhập để bình luận bạn nhé.');
+            alert('Hãy đăng nhập để bình luận.');
             return;
         }
-        //submit to db and get post after submit: newPost
         const { data } = await api.commentPostsApi({
             slug: post?.slug,
             text: comment.trim(),
@@ -122,7 +115,6 @@ function Post() {
         setComment('');
     };
 
-    //handle button deletePost
     const handleClickOpenDelete = (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -133,7 +125,7 @@ function Post() {
         e.stopPropagation();
         setOpenDialog(false);
     };
-    
+
     const handleCickAgreeDelete = async (e) => {
         e.stopPropagation();
         setOpenDialog(false);
@@ -321,7 +313,7 @@ function Post() {
                                 <input
                                     placeholder="Suy nghĩ của bạn là gì?"
                                     value={comment}
-                                    onChange={handleChangeComment}
+                                    onChange={(e) => setComment(e.target.value)}
                                     type="text"
                                     autoComplete="off"
                                 />

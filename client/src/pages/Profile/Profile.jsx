@@ -9,42 +9,41 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ReportRoundedIcon from '@material-ui/icons/ReportRounded';
 
-import './styles.sass';
 import * as api from '../../api/index';
 import LoadIcon from '../commons/components/LoadIcon/LoadIcon';
 import BigPostCard from '../commons/components/BigPostCard/BigPostCard';
 import { useWindowHeightAndWidth } from '../commons/custom/useWindowHeightAndWidth';
 
-function Profile(props) {
+import './styles.sass';
+
+function Profile() {
+    const dispatch = useDispatch();
     const { uuid } = useParams();
     const [height, width] = useWindowHeightAndWidth();
     const currentUser = JSON.parse(localStorage.getItem('profile'))?.result;
     const following = currentUser?.following.findIndex((userId) => userId === uuid);
+
     const [isOwn, setIsOwn] = useState(true);
     const [targetUser, setTargetUser] = useState({});
     const [posts, setPosts] = useState([]);
     const [openSetting, setOpenSetting] = useState(false);
-    const dispatch = useDispatch();
     const [likedPosts, setLikedPosts] = useState([]);
     const [openList, setOpenList] = useState('');
     const [followList, setFollowList] = useState([]);
-
     const [notFoundOwn, setNotFoundOwn] = useState(false);
     const [notFoundLiked, setNotFoundLiked] = useState(false);
 
-    const getUser = async () => {
-        const { data } = await api.getInfoUserApi(uuid);
-        data.data.createdAt = new Date(data.data.createdAt);
-        setTargetUser(data.data);
-        if (data.data.likedPosts?.length) {
-            setLikedPosts(data.data.likedPosts);
-        } else {
-            setNotFoundLiked(true);
-        }
-    };
-    //load data from server
-
     useEffect(() => {
+        const getUser = async () => {
+            const { data } = await api.getInfoUserApi(uuid);
+            data.data.createdAt = new Date(data.data.createdAt);
+            setTargetUser(data.data);
+            if (data.data.likedPosts?.length) {
+                setLikedPosts(data.data.likedPosts);
+            } else {
+                setNotFoundLiked(true);
+            }
+        };
         getUser();
     }, [uuid]);
 
@@ -53,11 +52,9 @@ function Profile(props) {
             setOpenSetting(false);
         };
         window.addEventListener('click', handleCloseSetting);
-
         return () => window.removeEventListener('click', handleCloseSetting);
     }, []);
 
-    //follow
     const handleClickFollow = async () => {
         if (currentUser) {
             const { data } = await api.followingApi({ target: uuid });
@@ -79,7 +76,6 @@ function Profile(props) {
         }
     };
 
-    //pagination
     const handlePageChange = async ({ selected }) => {
         setNotFoundOwn(false);
         if (targetUser.posts <= selected * 10) {
@@ -111,7 +107,7 @@ function Profile(props) {
             setNotFoundLiked(false);
         }
     };
-    //handle show follow
+
     const fetchFollowUsers = async (type, { selected }) => {
         const { data } = await api.getFollowUsersApi(targetUser.uuid, type, selected || 0);
         setFollowList(data.data);

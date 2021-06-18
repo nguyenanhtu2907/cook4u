@@ -16,7 +16,7 @@ import { useWindowHeightAndWidth } from "../commons/custom/useWindowHeightAndWid
 import PostCard from "../commons/components/PostCard/PostCard";
 import LoadIcon from "../commons/components/LoadIcon/LoadIcon";
 
-function Home(props) {
+function Home() {
   // const user = useSelector(state => state.user.authData);
   const posts = useSelector((state) => state.post.posts);
   const totalPosts = useSelector((state) => state.post.total);
