@@ -48,12 +48,14 @@ function Signin(props) {
             signupFormik.handleReset();
         },
     });
+
     if (responseData.message && responseData.success) {
         setTimeout(() => {
             history.push('/user/signin');
             setResponseData(initResponseType);
         }, 3000);
     }
+
     const signinFormik = useFormik({
         initialValues: {
             username: '',
@@ -65,8 +67,9 @@ function Signin(props) {
         }),
         onSubmit: async (values) => {
             const { data } = await signinApi(values);
-            
+
             if (data.message) {
+                console.log(data);
                 setResponseData({ ...data.data });
                 signupFormik.handleReset();
             } else {

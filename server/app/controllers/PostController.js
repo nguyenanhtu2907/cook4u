@@ -73,6 +73,7 @@ export const getMorePosts = async (req, res) => {
     const posts = await Post.find({ "author.uuid": uuid })
       .limit(5)
       .sort({ createdAt: -1 });
+
     const response = [...posts.filter((post) => post.slug !== slug)];
     res.json({
       success: true,

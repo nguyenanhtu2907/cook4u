@@ -18,8 +18,7 @@ import {
     DialogActions,
 } from '@material-ui/core';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { Masonry } from 'masonic';
+import { useDispatch } from 'react-redux';
 
 import './styles.sass';
 import Step from './Step';
@@ -34,6 +33,7 @@ function Post() {
     const currentUser = JSON.parse(localStorage.getItem('profile'))?.result;
     const [morePosts, setMorePosts] = useState([]);
     const [post, setPost] = useState(null);
+    const [comment, setComment] = useState('');
 
     const liked = post?.likes.findIndex((userId) => userId === currentUser?.uuid);
     const following = currentUser?.following.findIndex((userId) => userId === post?.author.uuid);
@@ -50,21 +50,24 @@ function Post() {
         };
 
         window.addEventListener('click', hideDropdown);
-
         return () => window.removeEventListener('click', hideDropdown);
     }, []);
 
     //get slug from url
     const { slug } = useParams();
-    //call api to get post
-    useEffect(async () => {
+
+    const handleGetPosts = async () => {
+        setMorePosts([]);
         const { data } = await api.getPostApi(slug);
         data.data.createdAt = new Date(data.data.createdAt);
         setPost(data.data);
         window.scrollTo(0, 0);
         const res = await api.getMorePostsApi({ slug, uuid: data.data.author.uuid });
         setMorePosts(res.data.data);
-        //why doesn't it refresh data in masonry here ???
+    };
+
+    useEffect(() => {
+        handleGetPosts();
     }, [slug]);
 
     //follow
@@ -86,7 +89,7 @@ function Post() {
             alert('Vui lòng đăng nhập để sử dụng chức năng này.');
         }
     };
-    //like
+
     const handleClickLike = async (e, id) => {
         e.preventDefault();
         e.stopPropagation();
@@ -99,8 +102,7 @@ function Post() {
             alert('Vui lòng đăng nhập để sử dụng chức năng này.');
         }
     };
-    //comment
-    const [comment, setComment] = useState('');
+
     const handleChangeComment = (e) => {
         setComment(e.target.value);
     };
@@ -119,16 +121,19 @@ function Post() {
         setPost(data.data);
         setComment('');
     };
+
     //handle button deletePost
     const handleClickOpenDelete = (e) => {
         e.stopPropagation();
         e.preventDefault();
         setOpenDialog(true);
     };
+
     const handleCloseDelete = (e) => {
         e.stopPropagation();
         setOpenDialog(false);
     };
+    
     const handleCickAgreeDelete = async (e) => {
         e.stopPropagation();
         setOpenDialog(false);
@@ -337,13 +342,9 @@ function Post() {
                 <div className="post-page--paper--more pd-left-3 pd-right-3 end-block">
                     <h3 className="title-page">{`Một số bài viết khác của ${post.author.name}`}</h3>
                     <div className="more--posts">
-                        <Masonry
-                            items={morePosts}
-                            columnGutter={10}
-                            columnWidth={150}
-                            overscanBy={4}
-                            render={PostCard}
-                        />
+                        {morePosts.map((post, index) => (
+                            <PostCard data={post} key={index} />
+                        ))}
                     </div>
                 </div>
             </div>

@@ -7,58 +7,66 @@ import * as api from '../../../../api/index';
 
 import './styles.sass';
 import { useDispatch } from 'react-redux';
+
 function PostCard({ data }) {
     const slug = window.location.pathname.slice(6);
-
     const [post, setPost] = useState({ ...data });
     const dispatch = useDispatch();
     const userId = JSON.parse(localStorage.getItem('profile'))?.result.uuid;
     let liked;
+
     if (userId) {
-        liked = post.likes.find(id => id === userId);
-    } 
+        liked = post.likes.find((id) => id === userId);
+    }
 
     const handleClickLike = async (e, id) => {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
         if (userId) {
             const { data } = await api.likePostsApi({ slug: post.slug });
-            dispatch({ type: 'UPDATE_POSTS', payload: data.data })
-            setPost({ ...data.data })
+            dispatch({ type: 'UPDATE_POSTS', payload: data.data });
+            setPost({ ...data.data });
         } else {
-            alert('Vui lòng đăng nhập để sử dụng chức năng này.')
+            alert('Vui lòng đăng nhập để sử dụng chức năng này.');
         }
-    }
-    return (
+    };
 
+    return (
         <div className="post-card ">
-            {!slug.length &&
-                <Link className="post-card--author" to={`/user/${post.author.uuid}`} >
+            {!slug.length && (
+                <Link className="post-card--author" to={`/user/${post.author.uuid}`}>
                     <div className="post-card--author__avatar">
                         <img referrerPolicy="no-referrer" src={post.author.imageUrl} alt="" />
                     </div>
-                    <span className="post-card--author__name">
-                        {post.author.name}
-                    </span>
-                </Link>}
+                    <span className="post-card--author__name">{post.author.name}</span>
+                </Link>
+            )}
 
             <Link to={`/post/${post.slug}`} className="post-card--content shadow">
                 <div className="post-card--content--thumbnail">
-                    <img width='320' height='240' src={post.thumbnail} alt="" />
+                    <img width="320" height="240" src={post.thumbnail} alt="" />
                 </div>
                 <div className="post-card--content--info pd-left-3 pd-right-3">
                     <div className="post-card--content--info--title">
                         <h2>{post.title}</h2>
                     </div>
                     <div className="post-card--content--info--title--icon">
-                        <div className="post-card--content--info--title--icon__like" onClick={(e) => handleClickLike(e, post._id)}>
-                            {liked ? <FavoriteRoundedIcon color="error" /> : <FavoriteBorderRoundedIcon />} {post.likes.length}
+                        <div
+                            className="post-card--content--info--title--icon__like"
+                            onClick={(e) => handleClickLike(e, post._id)}
+                        >
+                            {liked ? <FavoriteRoundedIcon color="error" /> : <FavoriteBorderRoundedIcon />}{' '}
+                            {post.likes.length}
                         </div>
                         {post.time && (
-                            <span><AlarmRoundedIcon fontSize='inherit' /> {post.time} phút</span>
+                            <span>
+                                <AlarmRoundedIcon fontSize="inherit" /> {post.time} phút
+                            </span>
                         )}
                     </div>
-                    {!slug.length && <p>{post.description}</p>}
+                    {!slug.length && (
+                        <p>{post.description.length > 90 ? post.description.slice(0, 90) + '...' : post.description}</p>
+                    )}
                 </div>
             </Link>
         </div>

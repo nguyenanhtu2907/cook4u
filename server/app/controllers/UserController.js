@@ -77,7 +77,7 @@ export const signin = async (req, res) => {
       success: true,
       status: 200,
       data: { result: existingUser, token: token },
-      message: "Sign in successfully!",
+      message: "",
     });
   } catch (error) {
     res.status(500).json({
